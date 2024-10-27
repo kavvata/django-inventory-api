@@ -1,9 +1,11 @@
 from rest_framework import serializers
 
-from .models import Computer, Software
+from .models import Computer
+
 
 class ComputerSerializer(serializers.ModelSerializer):
-    softwares = serializers.SerializerMethodField()
+    softwares = serializers.StringRelatedField(many=True)
     class Meta:
         model = Computer
-        fields = '__all__'
+        fields = ["device_uid", "softwares"]
+

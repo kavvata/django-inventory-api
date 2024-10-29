@@ -1,7 +1,9 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import APIView, api_view
 from rest_framework.response import Response
+from rest_framework.views import Request
 
 from ativos.models import Computer
+from ativos.parsers import XMLParser
 from ativos.serializer import ComputerSerializer
 
 
@@ -20,9 +22,8 @@ def fetch(request):
     return Response(ComputerSerializer(Computer.objects.all(), many=True).data)
 
 
-@api_view(["POST"])
-def inventory(request):
-    for key, value in filter(get_softwares, request.data["CONTENT"].items()):
-        print(f"{key}: {value}")
+class InventoryView(APIView):
+    parser_classes = [XMLParser]
 
-    return Response(request.data)
+    def post(self, request: Request):
+        return Response(request.data)

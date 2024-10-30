@@ -1,8 +1,10 @@
+from datetime import datetime
+
 from rest_framework.decorators import APIView, api_view
 from rest_framework.response import Response
 from rest_framework.views import Request
 
-from ativos.models import Computer
+from ativos.models import Computer, Software
 from ativos.parsers import XMLParser
 from ativos.serializer import ComputerSerializer
 
@@ -25,5 +27,29 @@ def fetch(request):
 class InventoryView(APIView):
     parser_classes = [XMLParser]
 
+
     def post(self, request: Request):
-        return Response(request.data)
+        data = request.data
+
+        print(data["DEVICEID"])
+
+        software_list = []
+
+        # FIXME: lento demais
+        # TODO: implementar transaction
+        for software_data in data["CONTENT"]["SOFTWARES"]:
+            software = Software(
+                arch=software_data["ARCH"],
+                name=software_data["NAME"],
+                # install_date=datetime.strptime(software_data["INSTALLDATE"], "%d/%m/%Y"),
+            )
+            software_list.append(software)
+
+        for software in software_list:
+            software.save()
+
+        computer = Computer(device_uid=data["DEVICEID"])
+        computer.save()
+        computer.softwares.set(software_list)
+
+        return Response(status=200)

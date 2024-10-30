@@ -8,12 +8,11 @@ from django.db import models
 
 class Software(models.Model):
     arch = models.CharField(max_length=255)
-    comments = models.CharField(max_length=255)
     guid = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
-    publisher = models.CharField(max_length=255)
-    version = models.CharField(max_length=50)
-    install_date = models.DateField(default=datetime.date.today)
+    publisher = models.CharField(max_length=255, null=True, blank=True)
+    version = models.CharField(max_length=50, null=True)
+    install_date = models.DateField(default=datetime.date.today, null=True, blank=True)
 
     def __str__(self):
         return f"{self.name}: {self.version}"

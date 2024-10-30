@@ -7,7 +7,7 @@ name = "pypi"
 djangorestframework = "*"
 markdown = "*"
 django-filter = "*"
-djangorestframework-xml = "*"
+defusedxml = "*"
 
 [dev-packages]
 

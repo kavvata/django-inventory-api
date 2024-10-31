@@ -5,7 +5,8 @@ from rest_framework.response import Response
 from rest_framework.views import Request
 
 from ativos.models import Computer, Software
-from ativos.parsers import XMLParser
+from ativos.parsers import ZlibXMLParser, XMLParser
+from ativos.renderers import XMLRenderer
 from ativos.serializer import ComputerSerializer
 
 
@@ -25,13 +26,15 @@ def fetch(request):
 
 
 class InventoryView(APIView):
-    parser_classes = [XMLParser]
+    parser_classes = [ZlibXMLParser, XMLParser]
+    renderer_classes = [XMLRenderer]
 
 
     def post(self, request: Request):
         data = request.data
 
-        print(data["DEVICEID"])
+        if "PROLOG" in data.get("QUERY"):
+            return Response({"PROLOG_FREQ": "24", "RESPONSE": "SEND"})
 
         software_list = []
 

@@ -41,18 +41,27 @@ class InventoryView(APIView):
         # FIXME: lento demais
         # TODO: implementar transaction
         for software_data in data["CONTENT"]["SOFTWARES"]:
-            software = Software(
-                arch=software_data["ARCH"],
-                name=software_data["NAME"],
-                # install_date=datetime.strptime(software_data["INSTALLDATE"], "%d/%m/%Y"),
+            try:
+                install_date = datetime.strptime(software_data.get("INSTALLDATE"), "%d/%m/%Y")
+            except TypeError:
+                install_date = datetime.today()
+
+            software, is_new = Software.objects.get_or_create(
+                arch=software_data.get("ARCH"),
+                guid=software_data.get("GUID"),
+                name=software_data.get("NAME"),
+                publisher=software_data.get("PUBLISHER"),
+                version=software_data.get("VERSION"),
+                install_date=install_date,
             )
+
             software_list.append(software)
 
-        for software in software_list:
-            software.save()
+        computer, is_new = Computer.objects.get_or_create(device_uid=data["DEVICEID"])
 
-        computer = Computer(device_uid=data["DEVICEID"])
-        computer.save()
+        if is_new:
+            computer.save()
+
         computer.softwares.set(software_list)
 
         return Response(status=200)
